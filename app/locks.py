@@ -1,6 +1,6 @@
-from processor import process_file, process_all
-from db import try_acquire_advisory_lock, release_advisory_lock
-from config import ADVISORY_LOCK_KEY, UPLOADS_DIR
+from .processor import process_file, process_all
+from .db import try_acquire_advisory_lock, release_advisory_lock
+from .config import ADVISORY_LOCK_KEY, UPLOADS_DIR
 
 import logging
 

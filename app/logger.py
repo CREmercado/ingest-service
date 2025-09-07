@@ -1,5 +1,5 @@
 import logging
-from config import LOG_LEVEL
+from .config import LOG_LEVEL
 
 def setup_logging():
     level = getattr(logging, LOG_LEVEL.upper(), logging.INFO)

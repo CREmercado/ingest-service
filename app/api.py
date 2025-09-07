@@ -1,13 +1,13 @@
 import requests
 from pathlib import Path
 from fastapi import FastAPI, BackgroundTasks
-from logger import setup_logging
-from config import SCHEDULE_MINUTES, UPLOADS_DIR, OLLAMA_EMBED_MODEL, TIKA_URL
-from schemas import IngestRequest
-from processor import process_all, process_file
-from db import ensure_processed_table, get_db_conn
-from scheduler import start_scheduler
-from locks import guarded_process_all, guarded_process_all_for_paths
+from .logger import setup_logging
+from .config import SCHEDULE_MINUTES, UPLOADS_DIR, OLLAMA_EMBED_MODEL, TIKA_URL
+from .schemas import IngestRequest
+from .processor import process_all, process_file
+from .db import ensure_processed_table, get_db_conn
+from .scheduler import start_scheduler
+from .locks import guarded_process_all, guarded_process_all_for_paths
 
 log = setup_logging()
 app = FastAPI(title="Ingest Service")

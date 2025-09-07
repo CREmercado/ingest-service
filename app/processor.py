@@ -2,16 +2,16 @@ import uuid
 import datetime
 from pathlib import Path
 from typing import Dict, Any, List
-from logger import setup_logging
-from config import (
+from .logger import setup_logging
+from .config import (
     CHUNK_MAX_CHARS, CHUNK_OVERLAP, UPSERT_BATCH_SIZE,
     UPLOADS_DIR, OLLAMA_EMBED_MODEL, QDRANT_COLLECTION
 )
-from db import ensure_processed_table, already_ingested, mark_as_processed
-from clients.tika_client import extract_text
-from clients.ollama_client import embed_text
-from clients.qdrant_client import upsert_points
-from chunker import chunk_text
+from .db import ensure_processed_table, already_ingested, mark_as_processed
+from .clients.tika_client import extract_text
+from .clients.ollama_client import embed_text
+from .clients.qdrant_client import upsert_points
+from .chunker import chunk_text
 from hashlib import sha3_256
 
 log = setup_logging()
@@ -29,13 +29,13 @@ def list_files(upload_dir: Path) -> List[Path]:
 def process_file(path: Path, embed_model: str = None) -> Dict[str, Any]:
     embed_model = embed_model or OLLAMA_EMBED_MODEL
     log.info(f"Processing file {path}")
-    b = path.read_bytes()
-    source_hash = sha3_256_bytes(b)
+    text_bytes = path.read_bytes()
+    source_hash = sha3_256_bytes(text_bytes)
     if already_ingested(source_hash):
         log.info(f"Skipping (already ingested): {path}")
         return {"skipped": True, "path": str(path)}
 
-    text = extract_text(b)
+    text = extract_text(text_bytes)
     if not text or not text.strip():
         log.warning(f"No text extracted for {path}; marking as processed with 0 points.")
         mark_as_processed(str(path), source_hash, QDRANT_COLLECTION, 0)

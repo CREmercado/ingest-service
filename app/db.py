@@ -1,8 +1,7 @@
 import psycopg2
 from psycopg2.extras import execute_values
-from config import POSTGRES_DSN
+from .config import POSTGRES_DSN, ADVISORY_LOCK_KEY
 from typing import Tuple, Optional
-from config import ADVISORY_LOCK_KEY
 
 def get_db_conn():
     return psycopg2.connect(POSTGRES_DSN)
