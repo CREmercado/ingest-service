@@ -1,5 +1,5 @@
 from apscheduler.schedulers.background import BackgroundScheduler
-from .logger import setup_logging
+from logger import setup_logging
 
 log = setup_logging()
 

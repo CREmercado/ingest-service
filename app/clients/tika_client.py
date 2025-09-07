@@ -1,6 +1,6 @@
 import requests
 from typing import Optional
-from ..config import TIKA_URL
+from config import TIKA_URL
 
 def extract_text(file_bytes: bytes, timeout: int = 60) -> str:
     headers = {"Accept": "text/plain"}

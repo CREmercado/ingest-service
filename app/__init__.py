@@ -1,1 +1,1 @@
-from . import config, logger, db, processor, schemas
+from . import config, logger, db, processor, schemas, locks

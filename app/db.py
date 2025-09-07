@@ -1,7 +1,8 @@
 import psycopg2
 from psycopg2.extras import execute_values
-from .config import POSTGRES_DSN
-from typing import Optional
+from config import POSTGRES_DSN
+from typing import Tuple, Optional
+from config import ADVISORY_LOCK_KEY
 
 def get_db_conn():
     return psycopg2.connect(POSTGRES_DSN)
@@ -47,4 +48,45 @@ def already_ingested(source_hash: str) -> bool:
     ok = cur.fetchone() is not None
     cur.close()
     conn.close()
+    return ok
+
+def try_acquire_advisory_lock(key: int = ADVISORY_LOCK_KEY) -> Tuple[Optional[psycopg2.extensions.connection], bool]:
+    """
+    Try to acquire an advisory lock using a dedicated DB connection.
+    Returns (conn, True) if acquired, or (None, False) if lock not acquired.
+    IMPORTANT: if you acquire the lock, keep the returned conn open until you release.
+    """
+    conn = None
+    try:
+        conn = get_db_conn()
+        cur = conn.cursor()
+        cur.execute("SELECT pg_try_advisory_lock(%s);", (key,))
+        got = cur.fetchone()[0]
+        # do not close conn if got==True; keep it open to hold the lock
+        cur.close()
+        if not got:
+            # release connection because we didn't acquire lock
+            conn.close()
+            return (None, False)
+        return (conn, True)
+    except Exception:
+        if conn:
+            conn.close()
+        raise
+
+def release_advisory_lock(conn: psycopg2.extensions.connection, key: int = ADVISORY_LOCK_KEY) -> bool:
+    """
+    Release advisory lock and close connection.
+    Returns True if unlocked, False otherwise.
+    """
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT pg_advisory_unlock(%s);", (key,))
+        ok = cur.fetchone()[0]
+        cur.close()
+    finally:
+        try:
+            conn.close()
+        except Exception:
+            pass
     return ok

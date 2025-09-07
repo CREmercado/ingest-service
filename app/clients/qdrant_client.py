@@ -1,6 +1,6 @@
 import requests
 from typing import List, Dict, Any
-from ..config import QDRANT_URL
+from config import QDRANT_URL
 
 def upsert_points(points: List[Dict[str, Any]], collection: str):
     url = f"{QDRANT_URL.rstrip('/')}/collections/{collection}/points"

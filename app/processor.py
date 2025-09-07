@@ -2,16 +2,16 @@ import uuid
 import datetime
 from pathlib import Path
 from typing import Dict, Any, List
-from .logger import setup_logging
-from .config import (
+from logger import setup_logging
+from config import (
     CHUNK_MAX_CHARS, CHUNK_OVERLAP, UPSERT_BATCH_SIZE,
     UPLOADS_DIR, OLLAMA_EMBED_MODEL, QDRANT_COLLECTION
 )
-from .db import ensure_processed_table, already_ingested, mark_as_processed
-from .clients.tika_client import extract_text
-from .clients.ollama_client import embed_text
-from .clients.qdrant_client import upsert_points
-from .chunker import chunk_text
+from db import ensure_processed_table, already_ingested, mark_as_processed
+from clients.tika_client import extract_text
+from clients.ollama_client import embed_text
+from clients.qdrant_client import upsert_points
+from chunker import chunk_text
 from hashlib import sha3_256
 
 log = setup_logging()

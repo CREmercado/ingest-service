@@ -1,6 +1,6 @@
 import requests
 from typing import Any, List
-from ..config import OLLAMA_URL
+from config import OLLAMA_URL
 
 def extract_embedding_from_ollama_response(ollama_res: Any) -> List[float]:
     resp_item = ollama_res[0] if isinstance(ollama_res, list) and len(ollama_res) > 0 else ollama_res
