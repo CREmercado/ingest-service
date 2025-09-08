@@ -2,18 +2,32 @@ import requests
 from pathlib import Path
 from fastapi import FastAPI, BackgroundTasks
 from .logger import setup_logging
-from .config import SCHEDULE_MINUTES, UPLOADS_DIR, OLLAMA_EMBED_MODEL, TIKA_URL
+from .config import SCHEDULE_MINUTES, UPLOADS_DIR, QDRANT_COLLECTION, QDRANT_VECTOR_SIZE, OLLAMA_EMBED_MODEL, TIKA_URL, OLLAMA_EMBED_MODEL
 from .schemas import IngestRequest
-from .processor import process_all, process_file
 from .db import ensure_processed_table, get_db_conn
 from .scheduler import start_scheduler
 from .locks import guarded_process_all, guarded_process_all_for_paths
+from .clients.qdrant_client import create_collection
+from .clients.ollama_client import embed_text, ensure_ollama_model
 
 log = setup_logging()
 app = FastAPI(title="Ingest Service")
 
 @app.on_event("startup")
 def startup():
+    ensure_ollama_model(OLLAMA_EMBED_MODEL)
+    
+    vector_size = QDRANT_VECTOR_SIZE
+
+    try:
+        log.info("Inferring vector size by calling embed on sample text...")
+        vector_size = len(embed_text("test", model=OLLAMA_EMBED_MODEL))
+        log.info(f"Inferred vector size: {vector_size}")
+    except Exception as e:
+        log.exception("Failed to infer vector size from Ollama. Falling back to default.")
+        vector_size = QDRANT_VECTOR_SIZE
+
+    create_collection(QDRANT_COLLECTION, vector_size=vector_size, distance="Cosine")
     ensure_processed_table()
     if SCHEDULE_MINUTES and SCHEDULE_MINUTES > 0:
         start_scheduler(lambda: guarded_process_all(UPLOADS_DIR), SCHEDULE_MINUTES)

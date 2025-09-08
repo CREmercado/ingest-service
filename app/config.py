@@ -13,6 +13,10 @@ QDRANT_COLLECTION = os.getenv("QDRANT_COLLECTION", "rag_docs")
 
 # DB
 POSTGRES_DSN = os.getenv("POSTGRES_DSN", "postgresql://postgres:postgres@postgres:5432/postgres")
+ADVISORY_LOCK_KEY = int(os.getenv("ADVISORY_LOCK_KEY", "987654321"))
+
+# Qdrant
+QDRANT_VECTOR_SIZE = os.getenv("QDRANT_VECTOR_SIZE", "768")
 
 # Chunking / batching
 CHUNK_MAX_CHARS = int(os.getenv("CHUNK_MAX_CHARS", "2000"))
@@ -24,6 +28,3 @@ SCHEDULE_MINUTES = int(os.getenv("SCHEDULE_MINUTES", "0"))
 
 # Misc
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
-
-# any int64 to be the lock key
-ADVISORY_LOCK_KEY = int(os.getenv("ADVISORY_LOCK_KEY", "987654321"))
