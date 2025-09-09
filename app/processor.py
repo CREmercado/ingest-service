@@ -53,6 +53,7 @@ def process_file(path: Path, embed_model: str = None) -> Dict[str, Any]:
             "vector": vec,
             "payload": {
                 "source_file": str(path),
+                "filename": str(path.name),
                 "source_hash": source_hash,
                 "chunkIndex": idx,
                 "text": chunk,

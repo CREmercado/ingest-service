@@ -28,3 +28,9 @@ SCHEDULE_MINUTES = int(os.getenv("SCHEDULE_MINUTES", "0"))
 
 # Misc
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+
+# HTTP client settings
+HTTP_RETRIES = int(os.getenv("HTTP_RETRIES", "3"))
+HTTP_BACKOFF_FACTOR = float(os.getenv("HTTP_BACKOFF_FACTOR", "0.5"))
+CONNECT_TIMEOUT = int(os.getenv("CONNECT_TIMEOUT", "5"))
+READ_TIMEOUT = int(os.getenv("READ_TIMEOUT", "300"))

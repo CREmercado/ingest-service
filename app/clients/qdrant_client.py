@@ -1,38 +1,48 @@
 import requests
 from typing import List, Dict, Any
-from ..config import QDRANT_URL
+from .http_client import create_session
+from ..config import QDRANT_URL, HTTP_RETRIES, HTTP_BACKOFF_FACTOR, CONNECT_TIMEOUT, READ_TIMEOUT
 
-def upsert_points(points: List[Dict[str, Any]], collection: str):
+session, timeout = create_session(
+    retries=HTTP_RETRIES,
+    backoff_factor=HTTP_BACKOFF_FACTOR,
+    timeout=(CONNECT_TIMEOUT, READ_TIMEOUT)
+)
+
+def upsert_points(points: List[Dict[str, Any]], collection: str) -> Dict[str, Any]:
+    """
+    Upsert points into a Qdrant collection.
+    """
     url = f"{QDRANT_URL.rstrip('/')}/collections/{collection}/points"
     body = {"points": points}
-    resp = requests.put(url, json=body, timeout=60)
+    resp = session.put(url, json=body, timeout=timeout)
     resp.raise_for_status()
     return resp.json()
 
-def create_collection(collection: str, vector_size: int, distance: str = "Cosine", timeout: int = 30) -> Dict[str, Any]:
+def create_collection(
+    collection: str,
+    vector_size: int,
+    distance: str = "Cosine"
+) -> Dict[str, Any]:
     """
     PUT /collections/{collection}
     Create a collection with the given vector size and distance metric.
-    If the collection already exists, do nothing.
+    If the collection already exists, return a neutral response.
     """
     url = f"{QDRANT_URL.rstrip('/')}/collections/{collection}"
     body = {"vectors": {"size": vector_size, "distance": distance}}
 
     try:
-        resp = requests.put(url, json=body, timeout=timeout)
+        resp = session.put(url, json=body, timeout=timeout)
         resp.raise_for_status()
         return resp.json()
+
     except requests.exceptions.HTTPError as e:
-        # Check if the error is a 409 Conflict, which means the collection already exists
         if resp.status_code == 409:
-            print(f"Collection '{collection}' already exists. Skipping creation.")
-            # Return a neutral response or None, depending on what's expected downstream
-            # For example, returning an empty dictionary or a specific message
+            # 409 = collection already exists
             return {"status": "already_exists", "collection": collection}
         else:
-            # If it's another HTTP error, re-raise it
             raise e
+
     except requests.exceptions.RequestException as e:
-        # Handle other potential errors like connection issues, timeouts, etc.
-        print(f"An error occurred during collection creation: {e}")
-        raise e
+        raise RuntimeError(f"An error occurred during collection creation: {e}") from e
