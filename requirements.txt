@@ -5,4 +5,4 @@ psycopg2-binary==2.9.10
 apscheduler==3.10.1
 charset-normalizer==3.2.0
 ftfy==6.1.1
-nltk==3.8.6 
+nltk==3.9.1

@@ -10,9 +10,6 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Download NLTK data
-RUN python -m nltk.downloader punkt stopwords wordnet
-
 COPY app ./app
 
 EXPOSE 8000

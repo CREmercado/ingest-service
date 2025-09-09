@@ -12,6 +12,7 @@ from .clients.tika_client import extract_text
 from .clients.ollama_client import embed_text
 from .clients.qdrant_client import upsert_points
 from .chunker import chunk_text
+from .cleaner import clean_text
 from hashlib import sha3_256
 
 log = setup_logging()
@@ -35,7 +36,8 @@ def process_file(path: Path, embed_model: str = None) -> Dict[str, Any]:
         log.info(f"Skipping (already ingested): {path}")
         return {"skipped": True, "path": str(path)}
 
-    text = extract_text(text_bytes)
+    dirty_text = extract_text(text_bytes)
+    text = clean_text(dirty_text)
     if not text or not text.strip():
         log.warning(f"No text extracted for {path}; marking as processed with 0 points.")
         mark_as_processed(str(path), source_hash, QDRANT_COLLECTION, 0)

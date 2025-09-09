@@ -1,1 +1,1 @@
-from . import tika_client, ollama_client, qdrant_client
+from . import http_client, tika_client, ollama_client, qdrant_client
